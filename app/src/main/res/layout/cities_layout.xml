@@ -31,7 +31,7 @@
         android:layout_weight="1"/>
 	
 	<kankan.wheel.widget.WheelView android:id="@+id/city"
-		android:layout_height="110dp"
+		android:layout_height="200dp"
 		android:layout_width="match_parent"
         android:layout_gravity="center_vertical"
 		android:layout_weight="1.5"/>

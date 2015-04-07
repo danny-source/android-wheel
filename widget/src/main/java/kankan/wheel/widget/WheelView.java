@@ -641,12 +641,17 @@ public class WheelView extends View {
 		buttonForAction.setLeft(width - width1);
 		buttonForAction.setRight(width);
 		buttonForAction.invalidate();
-		buttonForAction.setTextSize(20);
+
+		//result/metrics.scaledDensity = value
+		float value  = getItemHeight() / getScaleDensity(getContext());
+		buttonForAction.setTextSize(value - 12);
+
 		//buttonForAction.setTextAlignment(TEXT_ALIGNMENT_GRAVITY);
 		buttonForAction.setGravity(Gravity.FILL_HORIZONTAL);
+		buttonForAction.setLines(1);
 		//buttonForAction.layout(getWidth() - width1, center - offset, getWidth(),center + offset);
 
-		//Log.d("TAG", "1111");
+		Log.d("TAG", "1111:" + (value - 12));
     }
 
 	@Override
@@ -1099,5 +1104,9 @@ public class WheelView extends View {
 	public static float getDensity(Context context){
 		DisplayMetrics metrics = context.getResources().getDisplayMetrics();
 		return metrics.density;
+	}
+	public static float getScaleDensity(Context context) {
+		DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+		return metrics.scaledDensity;
 	}
 }
