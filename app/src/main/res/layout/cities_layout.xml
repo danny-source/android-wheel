@@ -22,19 +22,18 @@
 		android:paddingRight="12dp"
 		android:paddingTop="4dp"
 		android:layout_marginTop="8dp"
-		android:orientation="horizontal">
+		android:orientation="vertical">
 	
    <kankan.wheel.widget.WheelView android:id="@+id/country"
         android:layout_height="110dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"/>
 	
 	<kankan.wheel.widget.WheelView android:id="@+id/city"
 		android:layout_height="110dp"
-		android:layout_width="wrap_content"
+		android:layout_width="match_parent"
         android:layout_gravity="center_vertical"
-		android:layout_marginLeft="10dp"
 		android:layout_weight="1.5"/>
 		
 	</LinearLayout>

@@ -26,17 +26,25 @@ import kankan.wheel.widget.adapters.WheelViewAdapter;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
+import android.text.Layout;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 /**
  * Numeric wheel view.
@@ -105,8 +113,10 @@ public class WheelView extends View {
 	float downY;
 	float upX;
 	float upY;
+	boolean isSwiped = false;
 	//
 	private Button buttonForAction;
+	private LinearLayout buttonLayout;
 	/**
 	 * Constructor
 	 */
@@ -137,9 +147,42 @@ public class WheelView extends View {
 	 */
 	private void initData(Context context) {
 	    scroller = new WheelScroller(getContext(), scrollingListener);
-		buttonForAction = new Button(context);
+		//
+		buttonLayout = new LinearLayout(getContext());
+		buttonLayout.setOrientation(LinearLayout.VERTICAL);
+		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1); // , 1是可選寫的
+		lp.setMargins(0, 0, 0, 0);
+		buttonLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		//
+		buttonForAction = new Button(getContext());
+		lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1); // , 1是可選寫的
+		lp.setMargins(0, 0, 0, 0);
+		buttonForAction.setLayoutParams(lp);
+//		buttonForAction.setWidth(50);
+//		buttonForAction.setHeight(20);
 		buttonForAction.setFocusable(false);
-		buttonForAction.setText("Test!");
+		buttonForAction.setClickable(true);
+		buttonForAction.setText("Delete");
+		buttonForAction.setTextSize(6);
+		buttonForAction.setTextColor(Color.GREEN);
+		buttonForAction.setBackgroundResource(R.drawable.wheel_action);
+		//buttonForAction.setHeight(getItemHeight());
+		buttonForAction.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				invalidate();
+				Log.d("TAG", "onClick");
+			}
+		});
+		buttonForAction.setVisibility(INVISIBLE);
+		buttonForAction.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				invalidate();
+				return false;
+			}
+		});
+		//
 	}
 	
 	// Scrolling listener
@@ -150,6 +193,10 @@ public class WheelView extends View {
         }
         
         public void onScroll(int distance) {
+			if (buttonForAction.getVisibility() == VISIBLE) {
+				buttonForAction.setVisibility(INVISIBLE);
+				invalidate();
+			}
             doScroll(distance);
             
             int height = getHeight();
@@ -332,11 +379,23 @@ public class WheelView extends View {
         }
     }
 	protected void notifyClickListenersAboutSwipeRight(int item) {
+		buttonForAction.setVisibility(INVISIBLE);
+		invalidate();
+		if (buttonForAction.getVisibility() == VISIBLE) {
+			buttonForAction.setVisibility(INVISIBLE);
+			invalidate();
+		}
+
 		for (OnWheelClickedListener listener : clickingListeners) {
 			listener.onItemSwipRight(this, item);
 		}
 	}
 	protected void notifyClickListenersAboutSwipeLeft(int item) {
+		if (buttonForAction.getVisibility() == INVISIBLE) {
+			buttonForAction.setVisibility(VISIBLE);
+			invalidate();
+		}
+		invalidate();
 		for (OnWheelClickedListener listener : clickingListeners) {
 			listener.onItemSwipLeft(this, item);
 		}
@@ -493,6 +552,11 @@ public class WheelView extends View {
 		return getHeight() / visibleItems;
 	}
 
+	private void calculateButtonLayout(int widthSize, int heightSize) {
+		buttonLayout.measure(MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.UNSPECIFIED),
+				MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.UNSPECIFIED));
+	}
+
 	/**
 	 * Calculates control width and creates text layouts
 	 * @param widthSize the input layout width
@@ -535,8 +599,10 @@ public class WheelView extends View {
 		int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
 		buildViewForMeasuring();
-		
+		buildButtonLayoutForMeasuring();
+
 		int width = calculateLayoutWidth(widthSize, widthMode);
+		calculateButtonLayout(widthSize, heightSize);
 
 		int height;
 		if (heightMode == MeasureSpec.EXACTLY) {
@@ -548,7 +614,7 @@ public class WheelView extends View {
 				height = Math.min(height, heightSize);
 			}
 		}
-
+//
 		setMeasuredDimension(width, height);
 	}
 	
@@ -566,6 +632,21 @@ public class WheelView extends View {
 		int itemsWidth = width - 2 * PADDING;
 		
 		itemsLayout.layout(0, 0, itemsWidth, height);
+		//
+		int center = height / 2;
+		int offset = (int) (getItemHeight() / 2 * 1.2);
+		int width1 = width/3;
+		buttonForAction.setTop(center - offset);
+		buttonForAction.setBottom(center + offset);
+		buttonForAction.setLeft(width - width1);
+		buttonForAction.setRight(width);
+		buttonForAction.invalidate();
+		buttonForAction.setTextSize(20);
+		//buttonForAction.setTextAlignment(TEXT_ALIGNMENT_GRAVITY);
+		buttonForAction.setGravity(Gravity.FILL_HORIZONTAL);
+		//buttonForAction.layout(getWidth() - width1, center - offset, getWidth(),center + offset);
+
+		//Log.d("TAG", "1111");
     }
 
 	@Override
@@ -573,13 +654,21 @@ public class WheelView extends View {
 		super.onDraw(canvas);
 		
 		if (viewAdapter != null && viewAdapter.getItemsCount() > 0) {
-	        updateView();
+			updateView();
 
 	        drawItems(canvas);
+			drawButtonLayout(canvas);
 	        drawCenterRect(canvas);
+
+
 		}
-		
-        drawShadows(canvas);
+
+		drawShadows(canvas);
+	}
+
+	private void drawButtonLayout(Canvas canvas) {
+		//buttonForAction.setHeight(getItemHeight());
+		buttonLayout.draw(canvas);
 	}
 
 	/**
@@ -619,6 +708,7 @@ public class WheelView extends View {
 		int offset = (int) (getItemHeight() / 2 * 1.2);
 		centerDrawable.setBounds(0, center - offset, getWidth(), center + offset);
 		centerDrawable.draw(canvas);
+
 	}
 
 	@Override
@@ -626,8 +716,8 @@ public class WheelView extends View {
 		if (!isEnabled() || getViewAdapter() == null) {
 			return true;
 		}
-
-
+		float deltaX;
+		float deltaY;
 		switch (event.getAction()) {
 
 			case MotionEvent.ACTION_DOWN:
@@ -640,15 +730,43 @@ public class WheelView extends View {
 		        if (getParent() != null) {
 		            getParent().requestDisallowInterceptTouchEvent(true);
 		        }
+				//
+				upX = event.getX();
+				upY = event.getY();
+				deltaX = downX - upX;
+				deltaY = downY - upY;
+				//Swipe Detect,if swiped ,don't care scrolling
+				Log.i("TAG", "centerDrawable with:" + centerDrawable.getBounds().width());
+				if((Math.abs(deltaX) > (centerDrawable.getBounds().width()/3)) && (Math.abs(deltaY)< (getItemHeight()+5))
+						) {
+					// left or right
+
+					if ((deltaX < 0) && centerDrawable.getBounds().contains((int)downX,(int)downY)) {
+						if (currentItem != 0 && isValidItemIndex(currentItem)) {
+							notifyClickListenersAboutSwipeRight(currentItem);
+						}
+						isSwiped = true;
+					}
+					if ((deltaX > 0) && centerDrawable.getBounds().contains((int)downX,(int)downY)) {
+						if (currentItem != 0 && isValidItemIndex(currentItem)) {
+							notifyClickListenersAboutSwipeLeft(currentItem);
+						}
+						isSwiped = true;
+					}
+					return true;
+				}
+
 		        break;
 		        
 		    case MotionEvent.ACTION_UP:
+
 				upX = event.getX();
 				upY = event.getY();
-				float deltaX = downX - upX;
-				float deltaY = downY - upY;
+				deltaX = downX - upX;
+				deltaY = downY - upY;
 				//Swipe Detect,if swiped ,don't care scrolling
 				Log.i("TAG", "centerDrawable with:" + centerDrawable.getBounds().width());
+				/*
 				if((Math.abs(deltaX) > (centerDrawable.getBounds().width()/3)) && (Math.abs(deltaY)< (getItemHeight()+5))
 						) {
 					// left or right
@@ -663,6 +781,11 @@ public class WheelView extends View {
 							notifyClickListenersAboutSwipeLeft(currentItem);
 						}
 					}
+					return true;
+				} else {
+				*/
+				if (isSwiped) {
+					isSwiped = false;
 					return true;
 				} else {
 					if (!isScrollingPerformed) {
@@ -687,7 +810,7 @@ public class WheelView extends View {
 
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
-		itemsLayout.dispatchTouchEvent(event);
+		buttonLayout.dispatchTouchEvent(event);
 		super.dispatchTouchEvent(event);
 		return true;
 	}
@@ -877,6 +1000,12 @@ public class WheelView extends View {
 		}
 	}
 
+	private void buildButtonLayoutForMeasuring() {
+		buttonLayout.removeAllViews();
+		buttonLayout.addView(buttonForAction);
+		invalidate();
+	}
+
 	/**
 	 * Adds view for item to items layout
 	 * @param index the item index
@@ -935,5 +1064,40 @@ public class WheelView extends View {
 	 */
 	public void stopScrolling() {
 	    scroller.stopScrolling();
+	}
+	//Tool
+	/**
+	 * Covert dp to px
+	 * @param dp
+	 * @param context
+	 * @return pixel
+	 */
+	public static float convertDpToPixel(float dp, Context context){
+		float px = dp * getDensity(context);
+		return px;
+	}
+
+	/**
+	 * Covert px to dp
+	 * @param px
+	 * @param context
+	 * @return dp
+	 */
+	public static float convertPixelToDp(float px, Context context){
+		float dp = px / getDensity(context);
+		return dp;
+	}
+
+	/**
+	 * 取得螢幕密度
+	 * 120dpi = 0.75
+	 * 160dpi = 1 (default)
+	 * 240dpi = 1.5
+	 * @param context
+	 * @return
+	 */
+	public static float getDensity(Context context){
+		DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+		return metrics.density;
 	}
 }
