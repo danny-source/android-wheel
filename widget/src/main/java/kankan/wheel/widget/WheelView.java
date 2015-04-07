@@ -35,6 +35,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Interpolator;
+import android.widget.Button;
 import android.widget.LinearLayout;
 
 /**
@@ -104,6 +105,8 @@ public class WheelView extends View {
 	float downY;
 	float upX;
 	float upY;
+	//
+	private Button buttonForAction;
 	/**
 	 * Constructor
 	 */
@@ -134,6 +137,9 @@ public class WheelView extends View {
 	 */
 	private void initData(Context context) {
 	    scroller = new WheelScroller(getContext(), scrollingListener);
+		buttonForAction = new Button(context);
+		buttonForAction.setFocusable(false);
+		buttonForAction.setText("Test!");
 	}
 	
 	// Scrolling listener

@@ -20,6 +20,7 @@ import android.graphics.Typeface;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -264,4 +265,5 @@ public abstract class AbstractWheelTextAdapter extends AbstractWheelAdapter {
             return inflater.inflate(resource, parent, false);    
         }
     }
+
 }

@@ -22,5 +22,13 @@
 	  android:layout_marginLeft="6dp"
 	  android:textSize="18sp"
 	  android:textColor="#F000"
-	  android:textStyle="bold"/>
+	  android:textStyle="bold"
+	  android:layout_weight="1" />
+
+	<Button
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Button"
+		android:id="@+id/button"
+		android:focusable="false" />
 </LinearLayout>
