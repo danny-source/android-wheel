@@ -10,8 +10,11 @@ import kankan.wheel.widget.adapters.ArrayWheelAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 public class CitiesActivity extends Activity {
@@ -26,7 +29,9 @@ public class CitiesActivity extends Activity {
                 
         final WheelView country = (WheelView) findViewById(R.id.country);
         country.setVisibleItems(3);
-        country.setViewAdapter(new CountryAdapter(this));
+        CountryAdapter cAdapter = new CountryAdapter(this);
+        cAdapter.setTextSize(22);
+        country.setViewAdapter(cAdapter);
 
         final String cities[][] = new String[][] {
         		new String[] {"New York", "Washington", "Chicago", "Atlanta", "Orlando"},
@@ -65,7 +70,7 @@ public class CitiesActivity extends Activity {
     private void updateCities(WheelView city, String cities[][], int index) {
         ArrayWheelAdapter<String> adapter =
             new ArrayWheelAdapter<String>(this, cities[index]);
-        adapter.setTextSize(18);
+        adapter.setTextSize(22);
         city.setViewAdapter(adapter);
         city.setCurrentItem(cities[index].length / 2);        
     }

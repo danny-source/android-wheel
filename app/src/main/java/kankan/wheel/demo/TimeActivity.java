@@ -10,6 +10,7 @@ import kankan.wheel.widget.adapters.NumericWheelAdapter;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TimePicker;
 
 public class TimeActivity extends Activity {
@@ -67,7 +68,17 @@ public class TimeActivity extends Activity {
             public void onItemClicked(WheelView wheel, int itemIndex) {
                 wheel.setCurrentItem(itemIndex, true);
             }
-        };
+
+			@Override
+			public void onItemSwipRight(WheelView wheel, int itemIndex) {
+				Log.i("TAG", "Swipe Right :" + itemIndex);
+			}
+
+			@Override
+			public void onItemSwipLeft(WheelView wheel, int itemIndex) {
+				Log.i("TAG", "Swipe Left :" + itemIndex);
+			}
+		};
         hours.addClickingListener(click);
         mins.addClickingListener(click);
 

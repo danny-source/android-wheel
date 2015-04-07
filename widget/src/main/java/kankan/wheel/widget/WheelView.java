@@ -30,6 +30,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -96,7 +97,13 @@ public class WheelView extends View {
 	private List<OnWheelChangedListener> changingListeners = new LinkedList<OnWheelChangedListener>();
 	private List<OnWheelScrollListener> scrollingListeners = new LinkedList<OnWheelScrollListener>();
     private List<OnWheelClickedListener> clickingListeners = new LinkedList<OnWheelClickedListener>();
-
+	//
+	static final int MIN_SWIPE_DISTANCE_RANG = 100;
+	static final int MIN_SWIPE_CALIBRATION = 50;
+	float downX;
+	float downY;
+	float upX;
+	float upY;
 	/**
 	 * Constructor
 	 */
@@ -318,7 +325,16 @@ public class WheelView extends View {
             listener.onItemClicked(this, item);
         }
     }
-
+	protected void notifyClickListenersAboutSwipeRight(int item) {
+		for (OnWheelClickedListener listener : clickingListeners) {
+			listener.onItemSwipRight(this, item);
+		}
+	}
+	protected void notifyClickListenersAboutSwipeLeft(int item) {
+		for (OnWheelClickedListener listener : clickingListeners) {
+			listener.onItemSwipLeft(this, item);
+		}
+	}
 	/**
 	 * Gets current value
 	 * 
@@ -482,8 +498,8 @@ public class WheelView extends View {
 
 		// TODO: make it static
 		itemsLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-	    itemsLayout.measure(MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.UNSPECIFIED), 
-	                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+	    itemsLayout.measure(MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.UNSPECIFIED),
+				MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
 		int width = itemsLayout.getMeasuredWidth();
 
 		if (mode == MeasureSpec.EXACTLY) {
@@ -499,8 +515,8 @@ public class WheelView extends View {
 			}
 		}
 		
-        itemsLayout.measure(MeasureSpec.makeMeasureSpec(width - 2 * PADDING, MeasureSpec.EXACTLY), 
-                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+        itemsLayout.measure(MeasureSpec.makeMeasureSpec(width - 2 * PADDING, MeasureSpec.EXACTLY),
+				MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
 
 		return width;
 	}
@@ -581,7 +597,7 @@ public class WheelView extends View {
 		canvas.save();
 		
 		int top = (currentItem - firstItem) * getItemHeight() + (getItemHeight() - getHeight()) / 2;
-		canvas.translate(PADDING, - top + scrollingOffset);
+		canvas.translate(PADDING, -top + scrollingOffset);
 		
 		itemsLayout.draw(canvas);
 
@@ -604,31 +620,70 @@ public class WheelView extends View {
 		if (!isEnabled() || getViewAdapter() == null) {
 			return true;
 		}
-		
+
+
 		switch (event.getAction()) {
+
+			case MotionEvent.ACTION_DOWN:
+				downX = event.getX();
+				downY = event.getY();
+				break;
+
 		    case MotionEvent.ACTION_MOVE:
+
 		        if (getParent() != null) {
 		            getParent().requestDisallowInterceptTouchEvent(true);
 		        }
 		        break;
 		        
 		    case MotionEvent.ACTION_UP:
-		        if (!isScrollingPerformed) {
-		            int distance = (int) event.getY() - getHeight() / 2;
-		            if (distance > 0) {
-		                distance += getItemHeight() / 2;
-		            } else {
-                        distance -= getItemHeight() / 2;
-		            }
-		            int items = distance / getItemHeight();
-		            if (items != 0 && isValidItemIndex(currentItem + items)) {
-	                    notifyClickListenersAboutClick(currentItem + items);
-		            }
-		        }
-		        break;
-		}
+				upX = event.getX();
+				upY = event.getY();
+				float deltaX = downX - upX;
+				float deltaY = downY - upY;
+				//Swipe Detect,if swiped ,don't care scrolling
+				Log.i("TAG", "centerDrawable with:" + centerDrawable.getBounds().width());
+				if((Math.abs(deltaX) > (centerDrawable.getBounds().width()/3)) && (Math.abs(deltaY)< (getItemHeight()+5))
+						) {
+					// left or right
 
+					if ((deltaX < 0) && centerDrawable.getBounds().contains((int)downX,(int)downY)) {
+						if (currentItem != 0 && isValidItemIndex(currentItem)) {
+							notifyClickListenersAboutSwipeRight(currentItem);
+						}
+					}
+					if ((deltaX > 0) && centerDrawable.getBounds().contains((int)downX,(int)downY)) {
+						if (currentItem != 0 && isValidItemIndex(currentItem)) {
+							notifyClickListenersAboutSwipeLeft(currentItem);
+						}
+					}
+					return true;
+				} else {
+					if (!isScrollingPerformed) {
+						int distance = (int) event.getY() - getHeight() / 2;
+						if (distance > 0) {
+							distance += getItemHeight() / 2;
+						} else {
+							distance -= getItemHeight() / 2;
+						}
+						int items = distance / getItemHeight();
+						if (items != 0 && isValidItemIndex(currentItem + items)) {
+							notifyClickListenersAboutClick(currentItem + items);
+						}
+					}
+				}
+		        break;
+
+		}
 		return scroller.onTouchEvent(event);
+
+	}
+
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent event) {
+		itemsLayout.dispatchTouchEvent(event);
+		super.dispatchTouchEvent(event);
+		return true;
 	}
 	
 	/**

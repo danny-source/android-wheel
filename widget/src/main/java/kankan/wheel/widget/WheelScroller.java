@@ -76,7 +76,9 @@ public class WheelScroller {
     private int lastScrollY;
     private float lastTouchedY;
     private boolean isScrollingPerformed;
-
+//
+    float lastTouchedX;
+    float upX;
     /**
      * Constructor
      * @param context the current context
@@ -133,12 +135,17 @@ public class WheelScroller {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 lastTouchedY = event.getY();
+                lastTouchedX = event.getX();
                 scroller.forceFinished(true);
                 clearMessages();
+
                 break;
     
             case MotionEvent.ACTION_MOVE:
                 // perform scrolling
+                if (Math.abs(lastTouchedX - event.getX()) >50 ) {
+                    break;
+                }
                 int distanceY = (int)(event.getY() - lastTouchedY);
                 if (distanceY != 0) {
                     startScrolling();
