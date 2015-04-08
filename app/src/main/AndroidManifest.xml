@@ -47,6 +47,12 @@
                 <category android:name="kankan.wheel.WHEEL_SAMPLE"/>
             </intent-filter>
         </activity>
+        <activity android:name="kankan.wheel.demo.SwipeActivity" android:label="Swipe">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="kankan.wheel.WHEEL_SAMPLE"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

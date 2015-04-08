@@ -22,6 +22,7 @@ package kankan.wheel.widget;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -147,6 +148,12 @@ public class WheelScroller {
                     break;
                 }
                 int distanceY = (int)(event.getY() - lastTouchedY);
+                if (!isScrollingPerformed) {
+                    if (Math.abs(distanceY)<15){
+                        break;
+                    }
+                    distanceY = ((distanceY > 0) ? distanceY - 15 : distanceY + 15);
+                }
                 if (distanceY != 0) {
                     startScrolling();
                     listener.onScroll(distanceY);
@@ -167,6 +174,8 @@ public class WheelScroller {
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             // Do scrolling in onTouchEvent() since onScroll() are not call immediately
             //  when user touch and move the wheel
+
+            //Log.i("TAG", "onScroll..");
             return true;
         }
         
@@ -176,6 +185,7 @@ public class WheelScroller {
             final int minY = -maxY;
             scroller.fling(0, lastScrollY, 0, (int) -velocityY, 0, 0, minY, maxY);
             setNextMessage(MESSAGE_SCROLL);
+            //Log.i("TAG","onFling..");
             return true;
         }
     };

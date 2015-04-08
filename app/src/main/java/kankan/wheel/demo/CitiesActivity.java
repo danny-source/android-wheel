@@ -30,7 +30,7 @@ public class CitiesActivity extends Activity {
         final WheelView country = (WheelView) findViewById(R.id.country);
         country.setVisibleItems(3);
         CountryAdapter cAdapter = new CountryAdapter(this);
-        cAdapter.setTextSize(30);
+        cAdapter.setTextSize(40);
         country.setViewAdapter(cAdapter);
 
         final String cities[][] = new String[][] {

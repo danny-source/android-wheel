@@ -70,13 +70,15 @@ public class TimeActivity extends Activity {
             }
 
 			@Override
-			public void onItemSwipRight(WheelView wheel, int itemIndex) {
+			public boolean onItemSwipRight(WheelView wheel, int itemIndex) {
 				Log.i("TAG", "Swipe Right :" + itemIndex);
+				return true;
 			}
 
 			@Override
-			public void onItemSwipLeft(WheelView wheel, int itemIndex) {
+			public boolean onItemSwipLeft(WheelView wheel, int itemIndex) {
 				Log.i("TAG", "Swipe Left :" + itemIndex);
+				return true;
 			}
 		};
         hours.addClickingListener(click);
