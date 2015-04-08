@@ -33,7 +33,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -116,20 +115,21 @@ public class WheelView extends View {
     float upX;
     float upY;
     //
-    private Button buttonForAction;
+    private Button actionButton;
     private LinearLayout buttonLayout;
-    private int buttonActionIsVisiable = INVISIBLE;
-    private float buttonActionFontSize = 20;
+    private int actionButtonIsViaiable = INVISIBLE;
+    private float actionButtonFontSize = 20;
     private int buttonActionFontWidth = 128;
-    private int buttonActionFontHeight = 65;
-    private int buttonActionColor = Color.GREEN;
-    private String buttonActionText = "Delete";
+    private int actionButtonFontHeight = 65;
+    private int actionButtonColor = Color.GREEN;
+    private String actionButtonText = "Delete";
     /**
      * Constructor
      */
     public WheelView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         initData(context);
+        initButtonForAction(context);
     }
 
     /**
@@ -138,6 +138,7 @@ public class WheelView extends View {
     public WheelView(Context context, AttributeSet attrs) {
         super(context, attrs);
         initData(context);
+        initButtonForAction(context);
     }
 
     /**
@@ -146,6 +147,7 @@ public class WheelView extends View {
     public WheelView(Context context) {
         super(context);
         initData(context);
+        initButtonForAction(context);
     }
 
     /**
@@ -155,6 +157,8 @@ public class WheelView extends View {
      */
     private void initData(Context context) {
         scroller = new WheelScroller(getContext(), scrollingListener);
+    }
+    private void initButtonForAction(Context context) {
         //
         buttonLayout = new LinearLayout(getContext());
         buttonLayout.setOrientation(LinearLayout.VERTICAL);
@@ -162,24 +166,23 @@ public class WheelView extends View {
         lp.setMargins(0, 0, 0, 0);
         buttonLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         //
-        buttonForAction = new Button(getContext());
+        actionButton = new Button(getContext());
         lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 1); // , 1是可選寫的
         lp.setMargins(0, 0, 0, 0);
-        buttonForAction.setLayoutParams(lp);
-        buttonForAction.setFocusable(false);
-        buttonForAction.setClickable(true);
-        buttonForAction.setTextColor(buttonActionColor);
-        buttonForAction.setBackgroundResource(R.drawable.wheel_action);
-        //buttonForAction.setHeight(getItemHeight());
-        buttonForAction.setOnClickListener(new OnClickListener() {
+        actionButton.setLayoutParams(lp);
+        actionButton.setFocusable(false);
+        actionButton.setClickable(true);
+        actionButton.setTextColor(actionButtonColor);
+        actionButton.setBackgroundResource(R.drawable.wheel_action);
+        actionButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 notifyClickListenersAboutActionClick(currentItem);
                 invalidate();
             }
         });
-        buttonForAction.setVisibility(buttonActionIsVisiable);
-        buttonForAction.setOnTouchListener(new OnTouchListener() {
+        actionButton.setVisibility(actionButtonIsViaiable);
+        actionButton.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 invalidate();
@@ -197,8 +200,10 @@ public class WheelView extends View {
         }
 
         public void onScroll(int distance) {
-            buttonForAction.setVisibility(INVISIBLE);
-            invalidate();
+            if (actionButtonIsViaiable == VISIBLE) {
+                actionButton.setVisibility(INVISIBLE);
+                invalidate();
+            }
             doScroll(distance);
             int height = getHeight();
             if (scrollingOffset > height) {
@@ -296,22 +301,22 @@ public class WheelView extends View {
         invalidateWheel(true);
     }
 
-    public void setButtonForActionAble(boolean flag) {
-        buttonActionIsVisiable = (flag == true ? VISIBLE : INVISIBLE);
+    public void setButtonForActionEnabled(boolean flag) {
+        actionButtonIsViaiable = (flag == true ? VISIBLE : INVISIBLE);
     }
 
-    public boolean isSwipeable() {
-        return (buttonActionIsVisiable == VISIBLE ? true : false);
+    public boolean isButtonForActionEnabled() {
+        return (actionButtonIsViaiable == VISIBLE ? true : false);
     }
 
     public void setButtonForActionFontSize(float size) {
-        buttonActionFontSize = size;
+        actionButtonFontSize = size;
     }
     public void setButtonForActionText(String text) {
-        buttonActionText = text;
+        actionButtonText = text;
     }
     public void setButtonForActionTextColor(int color) {
-        buttonActionColor = color;
+        actionButtonColor = color;
     }
     /**
      * Adds wheel changing listener
@@ -411,14 +416,14 @@ public class WheelView extends View {
         for (OnWheelClickedListener listener : clickingListeners) {
             boolean v = listener.onItemSwipRight(this, item);
             if (v) {
-                buttonForAction.setVisibility(buttonActionIsVisiable);
+                actionButton.setVisibility(actionButtonIsViaiable);
                 invalidate();
             }
         }
     }
 
     protected void notifyClickListenersAboutSwipeLeft(int item) {
-        buttonForAction.setVisibility(INVISIBLE);
+        actionButton.setVisibility(INVISIBLE);
         invalidate();
         for (OnWheelClickedListener listener : clickingListeners) {
             boolean v = listener.onItemSwipLeft(this, item);
@@ -672,25 +677,25 @@ public class WheelView extends View {
         //
         //result/metrics.scaledDensity = value
         float value = getItemHeight() / getScaleDensity(getContext());
-        //buttonForAction.setTextSize(value - 12);
-        buttonForAction.setTextSize(buttonActionFontSize);
-        buttonForAction.setText(buttonActionText);
-        buttonForAction.setLines(1);
-        buttonForAction.setGravity(Gravity.CENTER);
-        buttonForAction.setTextColor(buttonActionColor);
+        //actionButton.setTextSize(value - 12);
+        actionButton.setTextSize(actionButtonFontSize);
+        actionButton.setText(actionButtonText);
+        actionButton.setLines(1);
+        actionButton.setGravity(Gravity.CENTER);
+        actionButton.setTextColor(actionButtonColor);
         //auto adjust width and height by fontsize
-        buttonActionFontWidth = buttonForAction.getMeasuredWidth();
-        buttonActionFontHeight = buttonForAction.getMeasuredHeight();
+        buttonActionFontWidth = actionButton.getMeasuredWidth();
+        actionButtonFontHeight = actionButton.getMeasuredHeight();
         //
         int center = height / 2;
-        int offset = buttonActionFontHeight/2;
+        int offset = actionButtonFontHeight /2;
         int centerBarHeight = (int) (getItemHeight() / 2 * 1.2);
         int padding = centerBarHeight - offset;
 
-        buttonForAction.setTop(center - offset);
-        buttonForAction.setBottom(center + offset);
-        buttonForAction.setLeft(width - buttonActionFontWidth - padding);
-        buttonForAction.setRight(width - padding);
+        actionButton.setTop(center - offset);
+        actionButton.setBottom(center + offset);
+        actionButton.setLeft(width - buttonActionFontWidth - padding);
+        actionButton.setRight(width - padding);
         //Log.i("TAG","buttonActionFontWidth:" + buttonActionFontWidth);
         //
     }
@@ -713,8 +718,8 @@ public class WheelView extends View {
     }
 
     private void drawButtonLayout(Canvas canvas) {
-        //buttonForAction.setHeight(getItemHeight());
-        if ((buttonActionIsVisiable == VISIBLE) && (buttonForAction.getVisibility() == VISIBLE)) {
+        //actionButton.setHeight(getItemHeight());
+        if ((actionButtonIsViaiable == VISIBLE) && (actionButton.getVisibility() == VISIBLE)) {
             buttonLayout.draw(canvas);
         }
     }
@@ -838,7 +843,7 @@ public class WheelView extends View {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        if ((buttonActionIsVisiable == VISIBLE) && (buttonForAction.getVisibility() == VISIBLE)) {
+        if ((actionButtonIsViaiable == VISIBLE) && (actionButton.getVisibility() == VISIBLE)) {
             buttonLayout.dispatchTouchEvent(event);
         }
         super.dispatchTouchEvent(event);
@@ -1037,7 +1042,7 @@ public class WheelView extends View {
 
     private void buildButtonLayoutForMeasuring() {
         buttonLayout.removeAllViews();
-        buttonLayout.addView(buttonForAction);
+        buttonLayout.addView(actionButton);
         invalidate();
     }
 

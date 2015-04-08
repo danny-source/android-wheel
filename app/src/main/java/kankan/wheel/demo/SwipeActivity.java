@@ -1,6 +1,7 @@
 package kankan.wheel.demo;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -27,9 +28,10 @@ public class SwipeActivity extends Activity {
 
         final WheelView country = (WheelView) findViewById(R.id.swipe);
         //country.setVisibleItems(3);
-        country.setButtonForActionAble(true);
+        country.setButtonForActionEnabled(true);
         country.setButtonForActionFontSize(18);
         country.setButtonForActionText("刪除");
+        country.setButtonForActionTextColor(Color.WHITE);
 
         ArrayWheelAdapter<String> adapter =
                 new ArrayWheelAdapter<String>(this, countries);
