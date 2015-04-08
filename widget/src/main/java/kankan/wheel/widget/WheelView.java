@@ -33,6 +33,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -114,22 +115,34 @@ public class WheelView extends View {
     float downY;
     float upX;
     float upY;
-    //
-    private Button actionButton;
+    //delete button
+    private Button deleteButton;
     private LinearLayout buttonLayout;
+    private int deleteButtonIsViaiable = INVISIBLE;
+    private float deleteButtonFontSize = 20;
+    private int deleteButtonFontWidth = 128;
+    private int deleteButtonFontHeight = 65;
+    private int deleteButtonColor = Color.GREEN;
+    private String deleteButtonText = "Delete";
+    private boolean isSwipeLeft = false;
+    private boolean isSwipeRight = false;
+    //action button
+    private Button actionButton;
     private int actionButtonIsViaiable = INVISIBLE;
     private float actionButtonFontSize = 20;
-    private int buttonActionFontWidth = 128;
+    private int actionButtonFontWidth = 65;
     private int actionButtonFontHeight = 65;
     private int actionButtonColor = Color.GREEN;
-    private String actionButtonText = "Delete";
+    private String actionButtonText = ">";
+    private boolean isActionDeleteButtonTouched = false;
     /**
      * Constructor
      */
     public WheelView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         initData(context);
-        initButtonForAction(context);
+        initActionButton(context);
+        initDeleteButton(context);
     }
 
     /**
@@ -138,7 +151,8 @@ public class WheelView extends View {
     public WheelView(Context context, AttributeSet attrs) {
         super(context, attrs);
         initData(context);
-        initButtonForAction(context);
+        initActionButton(context);
+        initDeleteButton(context);
     }
 
     /**
@@ -147,7 +161,8 @@ public class WheelView extends View {
     public WheelView(Context context) {
         super(context);
         initData(context);
-        initButtonForAction(context);
+        initActionButton(context);
+        initDeleteButton(context);
     }
 
     /**
@@ -158,7 +173,8 @@ public class WheelView extends View {
     private void initData(Context context) {
         scroller = new WheelScroller(getContext(), scrollingListener);
     }
-    private void initButtonForAction(Context context) {
+
+    private void initDeleteButton(Context context) {
         //
         buttonLayout = new LinearLayout(getContext());
         buttonLayout.setOrientation(LinearLayout.VERTICAL);
@@ -166,9 +182,39 @@ public class WheelView extends View {
         lp.setMargins(0, 0, 0, 0);
         buttonLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         //
-        actionButton = new Button(getContext());
+        deleteButton = new Button(getContext());
         lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 1); // , 1是可選寫的
         lp.setMargins(0, 0, 0, 0);
+        deleteButton.setLayoutParams(lp);
+        deleteButton.setFocusable(false);
+        deleteButton.setClickable(true);
+        deleteButton.setTextColor(deleteButtonColor);
+        deleteButton.setBackgroundResource(R.drawable.wheel_delete);
+        deleteButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isActionDeleteButtonTouched = false;
+                notifyClickListenersAboutDeleteClick(currentItem);
+                invalidate();
+            }
+        });
+        deleteButton.setVisibility(deleteButtonIsViaiable);
+        deleteButton.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                isActionDeleteButtonTouched = true;
+                invalidate();
+                return false;
+            }
+        });
+        //
+    }
+
+    private void initActionButton(Context context) {
+        //
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1); // , 1是可選寫的
+        lp.setMargins(0, 0, 0, 0);
+        actionButton = new Button(getContext());
         actionButton.setLayoutParams(lp);
         actionButton.setFocusable(false);
         actionButton.setClickable(true);
@@ -177,6 +223,7 @@ public class WheelView extends View {
         actionButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                isActionDeleteButtonTouched = false;
                 notifyClickListenersAboutActionClick(currentItem);
                 invalidate();
             }
@@ -185,6 +232,7 @@ public class WheelView extends View {
         actionButton.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                isActionDeleteButtonTouched = true;
                 invalidate();
                 return false;
             }
@@ -195,15 +243,21 @@ public class WheelView extends View {
     // Scrolling listener
     WheelScroller.ScrollingListener scrollingListener = new WheelScroller.ScrollingListener() {
         public void onStarted() {
+            if (deleteButtonIsViaiable == VISIBLE) {
+                deleteButton.setVisibility(INVISIBLE);
+                isSwipeLeft = false;
+                invalidate();
+            }
+            if (actionButtonIsViaiable == VISIBLE) {
+                actionButton.setVisibility(INVISIBLE);
+                isSwipeRight = false;
+                invalidate();
+            }
             isScrollingPerformed = true;
             notifyScrollingListenersAboutStart();
         }
 
         public void onScroll(int distance) {
-            if (actionButtonIsViaiable == VISIBLE) {
-                actionButton.setVisibility(INVISIBLE);
-                invalidate();
-            }
             doScroll(distance);
             int height = getHeight();
             if (scrollingOffset > height) {
@@ -217,8 +271,13 @@ public class WheelView extends View {
 
         public void onFinished() {
             if (isScrollingPerformed) {
+                if (actionButtonIsViaiable == VISIBLE) {
+                    actionButton.setVisibility(VISIBLE);
+                    invalidate();
+                }
                 notifyScrollingListenersAboutEnd();
                 isScrollingPerformed = false;
+                notifyClickListenersSelected(currentItem);
             }
 
             scrollingOffset = 0;
@@ -301,23 +360,53 @@ public class WheelView extends View {
         invalidateWheel(true);
     }
 
-    public void setButtonForActionEnabled(boolean flag) {
+    /*
+    action button set
+     */
+    public void setActionButtonEnabled(boolean flag) {
         actionButtonIsViaiable = (flag == true ? VISIBLE : INVISIBLE);
     }
 
-    public boolean isButtonForActionEnabled() {
+    public boolean isActionButtonEnabled() {
         return (actionButtonIsViaiable == VISIBLE ? true : false);
     }
 
-    public void setButtonForActionFontSize(float size) {
+    public void setActionButtonFontSize(float size) {
         actionButtonFontSize = size;
     }
-    public void setButtonForActionText(String text) {
+
+    public void setActionButtonText(String text) {
         actionButtonText = text;
     }
-    public void setButtonForActionTextColor(int color) {
+
+    public void setActionButtonTextColor(int color) {
         actionButtonColor = color;
     }
+
+    /*
+    delete button set
+    */
+    public void setDeleteButtonEnabled(boolean flag) {
+        deleteButtonIsViaiable = (flag == true ? VISIBLE : INVISIBLE);
+    }
+
+    public boolean isDeleteButtonEnabled() {
+        return (deleteButtonIsViaiable == VISIBLE ? true : false);
+    }
+
+    public void setDeleteButtonFontSize(float size) {
+        deleteButtonFontSize = size;
+    }
+
+    public void setDeleteButtonText(String text) {
+        deleteButtonText = text;
+    }
+
+    public void setDeleteButtonTextColor(int color) {
+        deleteButtonColor = color;
+    }
+
+
     /**
      * Adds wheel changing listener
      *
@@ -412,22 +501,33 @@ public class WheelView extends View {
     }
 
     protected void notifyClickListenersAboutSwipeRight(int item) {
-
+        actionButton.setVisibility(INVISIBLE);
         for (OnWheelClickedListener listener : clickingListeners) {
             boolean v = listener.onItemSwipRight(this, item);
             if (v) {
-                actionButton.setVisibility(actionButtonIsViaiable);
+                deleteButton.setVisibility(deleteButtonIsViaiable);
+                isSwipeLeft = true;
                 invalidate();
             }
         }
     }
+    //
+    protected void notifyClickListenersSelected(int item) {
+        for (OnWheelClickedListener listener : clickingListeners) {
+            listener.onItemSelected(this, item);
+        }
+    }
 
     protected void notifyClickListenersAboutSwipeLeft(int item) {
-        actionButton.setVisibility(INVISIBLE);
+        isSwipeRight = true;
+        deleteButton.setVisibility(INVISIBLE);
         invalidate();
         for (OnWheelClickedListener listener : clickingListeners) {
             boolean v = listener.onItemSwipLeft(this, item);
-
+            //if (v) {
+                actionButton.setVisibility(actionButtonIsViaiable);
+            invalidate();
+            //}
 
         }
     }
@@ -435,6 +535,12 @@ public class WheelView extends View {
     protected void notifyClickListenersAboutActionClick(int item) {
         for (OnWheelClickedListener listener : clickingListeners) {
             listener.onActionClicked(this, item);
+        }
+    }
+
+    protected void notifyClickListenersAboutDeleteClick(int item) {
+        for (OnWheelClickedListener listener : clickingListeners) {
+            listener.onDeleteClicked(this, item);
         }
     }
     /**
@@ -662,6 +768,8 @@ public class WheelView extends View {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         layout(r - l, b - t);
+        layoutDeleteButton(r - l, b - t);
+        layoutActionButton(r - l, b - t);
     }
 
     /**
@@ -675,29 +783,62 @@ public class WheelView extends View {
 
         itemsLayout.layout(0, 0, itemsWidth, height);
         //
+    }
+
+    private void layoutDeleteButton(int width, int height) {
         //result/metrics.scaledDensity = value
-        float value = getItemHeight() / getScaleDensity(getContext());
-        //actionButton.setTextSize(value - 12);
+        //float value = getItemHeight() / getScaleDensity(getContext());
+        //deleteButton.setTextSize(value - 12);
+        deleteButton.setTextSize(deleteButtonFontSize);
+        deleteButton.setText(deleteButtonText);
+        deleteButton.setLines(1);
+        deleteButton.setGravity(Gravity.CENTER);
+        deleteButton.setTextColor(deleteButtonColor);
+        //auto adjust width and height by fontsize
+        deleteButtonFontWidth = deleteButton.getMeasuredWidth();
+        deleteButtonFontHeight = deleteButton.getMeasuredHeight();
+        //
+        int center = height / 2;
+        int offset = deleteButtonFontHeight / 2;
+        int centerBarHeight = (int) (getItemHeight() / 2 * 1.2);
+        int padding = Math.abs(centerBarHeight - offset);
+
+        deleteButton.setTop(center - offset);
+        deleteButton.setBottom(center + offset);
+        deleteButton.setLeft(width - deleteButtonFontWidth - padding);
+        deleteButton.setRight(width - padding);
+
+    }
+
+    private void layoutActionButton(int width, int height) {
+        //result/metrics.scaledDensity = value
+        //float value = getItemHeight() / getScaleDensity(getContext());
+        //deleteButton.setTextSize(value - 12);
         actionButton.setTextSize(actionButtonFontSize);
         actionButton.setText(actionButtonText);
         actionButton.setLines(1);
         actionButton.setGravity(Gravity.CENTER);
         actionButton.setTextColor(actionButtonColor);
         //auto adjust width and height by fontsize
-        buttonActionFontWidth = actionButton.getMeasuredWidth();
+        actionButtonFontWidth = actionButton.getMeasuredWidth();
         actionButtonFontHeight = actionButton.getMeasuredHeight();
         //
         int center = height / 2;
-        int offset = actionButtonFontHeight /2;
+        int offset = actionButtonFontHeight / 2;
         int centerBarHeight = (int) (getItemHeight() / 2 * 1.2);
-        int padding = centerBarHeight - offset;
+        int padding = 14;//centerBarHeight - offset;
 
         actionButton.setTop(center - offset);
         actionButton.setBottom(center + offset);
-        actionButton.setLeft(width - buttonActionFontWidth - padding);
+        actionButton.setLeft(width - actionButtonFontHeight - padding);
         actionButton.setRight(width - padding);
-        //Log.i("TAG","buttonActionFontWidth:" + buttonActionFontWidth);
-        //
+        if (!isSwipeLeft) {
+            if (actionButtonIsViaiable == VISIBLE) {
+                actionButton.setVisibility(VISIBLE);
+                invalidate();
+            }
+        }
+
     }
 
     @Override
@@ -718,8 +859,10 @@ public class WheelView extends View {
     }
 
     private void drawButtonLayout(Canvas canvas) {
-        //actionButton.setHeight(getItemHeight());
-        if ((actionButtonIsViaiable == VISIBLE) && (actionButton.getVisibility() == VISIBLE)) {
+        //deleteButton.setHeight(getItemHeight());
+        if ((deleteButtonIsViaiable == VISIBLE) && (deleteButton.getVisibility() == VISIBLE)) {
+            buttonLayout.draw(canvas);
+        } else if ((actionButtonIsViaiable == VISIBLE) && (actionButton.getVisibility() == VISIBLE)) {
             buttonLayout.draw(canvas);
         }
     }
@@ -817,6 +960,7 @@ public class WheelView extends View {
                         if (isValidItemIndex(currentItem)) {
                             notifyClickListenersAboutSwipeLeft(currentItem);
                         }
+                        return true;
                     }
                 } else {
 
@@ -828,9 +972,14 @@ public class WheelView extends View {
                             distance -= getItemHeight() / 2;
                         }
                         int items = distance / getItemHeight();
-                        if (items != 0 && isValidItemIndex(currentItem + items)) {
-                            notifyClickListenersAboutClick(currentItem + items);
+                        if (isValidItemIndex(currentItem + items)) {
+                            // Swipe Left don't callback Click
+                            if (items == 0) {
+                                notifyClickListenersAboutClick(currentItem + items);
+                            }
+
                         }
+                        Log.i("TAG","items:" + items);
                     }
 
                 }
@@ -843,7 +992,9 @@ public class WheelView extends View {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        if ((actionButtonIsViaiable == VISIBLE) && (actionButton.getVisibility() == VISIBLE)) {
+        if ((deleteButtonIsViaiable == VISIBLE) && (deleteButton.getVisibility() == VISIBLE)) {
+            buttonLayout.dispatchTouchEvent(event);
+        }else if((actionButtonIsViaiable == VISIBLE) && (actionButton.getVisibility() == VISIBLE)) {
             buttonLayout.dispatchTouchEvent(event);
         }
         super.dispatchTouchEvent(event);
@@ -1042,6 +1193,7 @@ public class WheelView extends View {
 
     private void buildButtonLayoutForMeasuring() {
         buttonLayout.removeAllViews();
+        buttonLayout.addView(deleteButton);
         buttonLayout.addView(actionButton);
         invalidate();
     }

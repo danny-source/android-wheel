@@ -63,7 +63,7 @@ public class TimeActivity extends Activity {
 		};
 		hours.addChangingListener(wheelListener);
 		mins.addChangingListener(wheelListener);
-		
+/*
 		OnWheelClickedListener click = new OnWheelClickedListener() {
             public void onItemClicked(WheelView wheel, int itemIndex) {
                 wheel.setCurrentItem(itemIndex, true);
@@ -85,10 +85,16 @@ public class TimeActivity extends Activity {
 			public void onActionClicked(WheelView wheel, int itemIndex) {
 
 			}
+
+			@Override
+			public void onDeleteClicked(WheelView wheel, int itemIndex) {
+
+			}
 		};
+
         hours.addClickingListener(click);
         mins.addClickingListener(click);
-
+*/
 		OnWheelScrollListener scrollListener = new OnWheelScrollListener() {
 			public void onScrollingStarted(WheelView wheel) {
 				timeScrolled = true;

@@ -29,7 +29,9 @@ public interface OnWheelClickedListener {
      * @param itemIndex the index of clicked item
      */
     void onItemClicked(WheelView wheel, int itemIndex);
+    void onItemSelected(WheelView wheel, int itemIndex);
     boolean onItemSwipRight(WheelView wheel, int itemIndex);
     boolean onItemSwipLeft(WheelView wheel, int itemIndex);
     void onActionClicked(WheelView wheel, int itemIndex);
+    void onDeleteClicked(WheelView wheel, int itemIndex);
 }

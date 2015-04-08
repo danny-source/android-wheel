@@ -28,10 +28,14 @@ public class SwipeActivity extends Activity {
 
         final WheelView country = (WheelView) findViewById(R.id.swipe);
         //country.setVisibleItems(3);
-        country.setButtonForActionEnabled(true);
-        country.setButtonForActionFontSize(18);
-        country.setButtonForActionText("刪除");
-        country.setButtonForActionTextColor(Color.WHITE);
+        country.setDeleteButtonEnabled(true);
+        country.setDeleteButtonFontSize(18);
+        country.setDeleteButtonText("刪除");
+        country.setDeleteButtonTextColor(Color.WHITE);
+        country.setActionButtonEnabled(true);
+        country.setActionButtonFontSize(22);
+        country.setActionButtonTextColor(Color.WHITE);
+        country.setActionButtonText(">");
 
         ArrayWheelAdapter<String> adapter =
                 new ArrayWheelAdapter<String>(this, countries);
@@ -62,7 +66,12 @@ public class SwipeActivity extends Activity {
         country.addClickingListener(new OnWheelClickedListener() {
             @Override
             public void onItemClicked(WheelView wheel, int itemIndex) {
+                Log.i("TAG","onItemClicked:" + itemIndex);
+            }
 
+            @Override
+            public void onItemSelected(WheelView wheel, int itemIndex) {
+                Log.i("TAG","onItemSelected:" + itemIndex);
             }
 
             @Override
@@ -81,7 +90,12 @@ public class SwipeActivity extends Activity {
 
             @Override
             public void onActionClicked(WheelView wheel, int itemIndex) {
-                Log.i("TAG","ActionClicked:" + itemIndex);
+                Log.i("TAG","onActionClicked:" + itemIndex);
+            }
+
+            @Override
+            public void onDeleteClicked(WheelView wheel, int itemIndex) {
+                Log.i("TAG","onDeleteClicked:" + itemIndex);
             }
         });
     }
