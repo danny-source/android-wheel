@@ -1,18 +1,13 @@
 package kankan.wheel.demo;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import kankan.wheel.widget.OnWheelChangedListener;
 import kankan.wheel.widget.OnWheelClickedListener;
 import kankan.wheel.widget.OnWheelScrollListener;
 import kankan.wheel.widget.WheelView;
-import kankan.wheel.widget.adapters.AbstractWheelTextAdapter;
 import kankan.wheel.widget.adapters.ArrayWheelAdapter;
 
 /**
@@ -32,7 +27,10 @@ public class SwipeActivity extends Activity {
 
         final WheelView country = (WheelView) findViewById(R.id.swipe);
         //country.setVisibleItems(3);
-        country.setSwipeable(true);
+        country.setButtonForActionAble(true);
+        country.setButtonForActionFontSize(18);
+        country.setButtonForActionText("刪除");
+
         ArrayWheelAdapter<String> adapter =
                 new ArrayWheelAdapter<String>(this, countries);
         adapter.setTextSize(34);
@@ -67,16 +65,21 @@ public class SwipeActivity extends Activity {
 
             @Override
             public boolean onItemSwipRight(WheelView wheel, int itemIndex) {
-                return false;
+                if (itemIndex == 2) {
+
+                    return false;
+                }
+                return true;
             }
 
             @Override
             public boolean onItemSwipLeft(WheelView wheel, int itemIndex) {
-                if (itemIndex == 2) {
-                    Log.i("TAG","can't show action");
-                    return false;
-                }
-                return true;
+                return false;
+            }
+
+            @Override
+            public void onActionClicked(WheelView wheel, int itemIndex) {
+                Log.i("TAG","ActionClicked:" + itemIndex);
             }
         });
     }

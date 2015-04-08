@@ -80,6 +80,11 @@ public class TimeActivity extends Activity {
 				Log.i("TAG", "Swipe Left :" + itemIndex);
 				return true;
 			}
+
+			@Override
+			public void onActionClicked(WheelView wheel, int itemIndex) {
+
+			}
 		};
         hours.addClickingListener(click);
         mins.addClickingListener(click);

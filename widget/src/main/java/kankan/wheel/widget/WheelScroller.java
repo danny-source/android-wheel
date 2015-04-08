@@ -164,6 +164,7 @@ public class WheelScroller {
         
         if (!gestureDetector.onTouchEvent(event) && event.getAction() == MotionEvent.ACTION_UP) {
             justify();
+            //Log.i("TAG","justify");
         }
 
         return true;

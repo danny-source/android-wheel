@@ -31,4 +31,5 @@ public interface OnWheelClickedListener {
     void onItemClicked(WheelView wheel, int itemIndex);
     boolean onItemSwipRight(WheelView wheel, int itemIndex);
     boolean onItemSwipLeft(WheelView wheel, int itemIndex);
+    void onActionClicked(WheelView wheel, int itemIndex);
 }
