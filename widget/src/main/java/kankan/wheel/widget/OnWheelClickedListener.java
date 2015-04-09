@@ -34,4 +34,6 @@ public interface OnWheelClickedListener {
     boolean onItemSwipLeft(WheelView wheel, int itemIndex);
     void onActionClicked(WheelView wheel, int itemIndex);
     void onDeleteClicked(WheelView wheel, int itemIndex);
+    void onItemUnderClicked(WheelView wheel, int itemIndex);
+    void onItemAboveClicked(WheelView wheel, int itemIndex);
 }

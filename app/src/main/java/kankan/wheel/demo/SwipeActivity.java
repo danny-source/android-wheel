@@ -97,6 +97,18 @@ public class SwipeActivity extends Activity {
             public void onDeleteClicked(WheelView wheel, int itemIndex) {
                 Log.i("TAG","onDeleteClicked:" + itemIndex);
             }
+
+            @Override
+            public void onItemUnderClicked(WheelView wheel, int itemIndex) {
+                country.setCurrentItem(itemIndex - 1);
+                Log.i("TAG", "onItemUnderClicked:" + itemIndex);
+            }
+
+            @Override
+            public void onItemAboveClicked(WheelView wheel, int itemIndex) {
+                country.setCurrentItem(itemIndex + 1);
+                Log.i("TAG", "onItemAboveClicked:" + itemIndex);
+            }
         });
     }
 

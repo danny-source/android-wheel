@@ -154,7 +154,7 @@ public class WheelView extends View {
     private int actionButtonColor = Color.GREEN;
     private String actionButtonText = ">";
     private boolean isActionDeleteButtonTouched = false;
-
+    private int pastCurrentItem = -1;
     /**
      * Constructor
      */
@@ -534,6 +534,10 @@ public class WheelView extends View {
 
     //
     protected void notifyClickListenersSelected(int item) {
+        if (pastCurrentItem == item) {
+            return;
+        }
+        pastCurrentItem = item;
         for (OnWheelClickedListener listener : clickingListeners) {
             listener.onItemSelected(this, item);
         }
@@ -564,7 +568,16 @@ public class WheelView extends View {
             listener.onDeleteClicked(this, item);
         }
     }
-
+    protected void notifyClickListenersAboutUnderSelectBarClick(int item) {
+        for (OnWheelClickedListener listener : clickingListeners) {
+            listener.onItemUnderClicked(this, item);
+        }
+    }
+    protected void notifyClickListenersAboutAboveSelectBarClick(int item) {
+        for (OnWheelClickedListener listener : clickingListeners) {
+            listener.onItemAboveClicked(this, item);
+        }
+    }
     /**
      * Gets current value
      *
@@ -615,6 +628,9 @@ public class WheelView extends View {
                 notifyChangingListeners(old, currentItem);
 
                 invalidate();
+            }
+            if (!isScrollingPerformed) {
+                notifyClickListenersSelected(currentItem);
             }
         }
     }
@@ -968,7 +984,7 @@ public class WheelView extends View {
                         ) {
                     // left or right
                     //Log.i("TAG", "Swipe in downX:" + downX + " downY:" + downY);
-                    if ((deltaX < 0) && centerDrawable.getBounds().contains((int) downX, (int) downY)) {
+                    if ((deltaX < 0) && isSelectBarArea(downX,downY)) {
                         //Log.i("TAG", "Swipe contains currentItem:" + currentItem);
                         downX = event.getX();
                         downY = event.getY();
@@ -977,7 +993,7 @@ public class WheelView extends View {
                         }
                         return true;
                     }
-                    if ((deltaX > 0) && centerDrawable.getBounds().contains((int) downX, (int) downY)) {
+                    if ((deltaX > 0) && isSelectBarArea(downX,downY)) {
                         //Log.i("TAG", "Swipe contains currentItem:" + currentItem);
                         downX = event.getX();
                         downY = event.getY();
@@ -996,12 +1012,20 @@ public class WheelView extends View {
                     int items = distance / getItemHeight();
                     if (isValidItemIndex(currentItem + items)) {
                         // Swipe Left don't callback Click
-                        if (items == 0) {
+                        if (isSelectBarClicked(items,downX,downY)) {
                             notifyClickListenersAboutClick(currentItem + items);
                         }
 
                     }
-                    Log.i("TAG", "items:" + items);
+                    if ((items >0) && (!(isSelectBarArea(downX, downY)))) {
+                        // clicked under SelectBar
+                        notifyClickListenersAboutUnderSelectBarClick(currentItem);
+                    }
+                    if ((items <0) && (!(isSelectBarArea(downX,downY)))){
+                        // clicked above SelectBar
+                        notifyClickListenersAboutAboveSelectBarClick(currentItem);
+                    }
+                    Log.i("TAG", "items:" + items + " currentItem:" + currentItem);
 
                 }
                 break;
@@ -1009,6 +1033,27 @@ public class WheelView extends View {
         }
         return scroller.onTouchEvent(event);
 
+    }
+
+    private boolean isSelectBarArea(float x, float y) {
+        return (centerDrawable.getBounds().contains((int)x,(int)y));
+    }
+/*
+check if Action/Delete button are clicked or SelectBar
+when ACTION_UP is on SelectBar , item == 0
+ */
+    private boolean isSelectBarClicked(int item,float x, float y) {
+        boolean result = false;
+        if (isSelectBarArea(downX,downY) && (item == 0)) {
+            if ((deleteButton.getVisibility() == VISIBLE) && (x < deleteButton.getLeft())){
+                result = true;
+            } else if ((actionButton.getVisibility() == VISIBLE)  && (x < actionButton.getLeft())){
+                result = true;
+            } else {
+                result = true;
+            }
+        }
+        return result;
     }
 
     @Override
