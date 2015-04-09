@@ -42,11 +42,30 @@ import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-/**
- * Numeric wheel view.
+/*
+ * android-wheel for Android Studio
+ * http://cms.35g.tw/coding
  *
- * @author Yuri Kanivets
+ * based on
+ *
+ * Android Wheel Control.
+ * https://code.google.com/p/android-wheel/
+ *
+ * Copyright 2011 Yuri Kanivets
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 public class WheelView extends View {
 
     /**
@@ -135,6 +154,7 @@ public class WheelView extends View {
     private int actionButtonColor = Color.GREEN;
     private String actionButtonText = ">";
     private boolean isActionDeleteButtonTouched = false;
+
     /**
      * Constructor
      */
@@ -511,6 +531,7 @@ public class WheelView extends View {
             }
         }
     }
+
     //
     protected void notifyClickListenersSelected(int item) {
         for (OnWheelClickedListener listener : clickingListeners) {
@@ -525,7 +546,7 @@ public class WheelView extends View {
         for (OnWheelClickedListener listener : clickingListeners) {
             boolean v = listener.onItemSwipLeft(this, item);
             //if (v) {
-                actionButton.setVisibility(actionButtonIsViaiable);
+            actionButton.setVisibility(actionButtonIsViaiable);
             invalidate();
             //}
 
@@ -543,6 +564,7 @@ public class WheelView extends View {
             listener.onDeleteClicked(this, item);
         }
     }
+
     /**
      * Gets current value
      *
@@ -933,8 +955,10 @@ public class WheelView extends View {
                 break;
 
             case MotionEvent.ACTION_UP:
-
-                //
+                if (isScrollingPerformed) {
+                    break;
+                }
+                // when scrolling ,skip it
                 upX = event.getX();
                 upY = event.getY();
                 deltaX = downX - upX;
@@ -963,24 +987,21 @@ public class WheelView extends View {
                         return true;
                     }
                 } else {
-
-                    if (!isScrollingPerformed) {
-                        int distance = (int) event.getY() - getHeight() / 2;
-                        if (distance > 0) {
-                            distance += getItemHeight() / 2;
-                        } else {
-                            distance -= getItemHeight() / 2;
-                        }
-                        int items = distance / getItemHeight();
-                        if (isValidItemIndex(currentItem + items)) {
-                            // Swipe Left don't callback Click
-                            if (items == 0) {
-                                notifyClickListenersAboutClick(currentItem + items);
-                            }
-
-                        }
-                        Log.i("TAG","items:" + items);
+                    int distance = (int) event.getY() - getHeight() / 2;
+                    if (distance > 0) {
+                        distance += getItemHeight() / 2;
+                    } else {
+                        distance -= getItemHeight() / 2;
                     }
+                    int items = distance / getItemHeight();
+                    if (isValidItemIndex(currentItem + items)) {
+                        // Swipe Left don't callback Click
+                        if (items == 0) {
+                            notifyClickListenersAboutClick(currentItem + items);
+                        }
+
+                    }
+                    Log.i("TAG", "items:" + items);
 
                 }
                 break;
@@ -994,7 +1015,7 @@ public class WheelView extends View {
     public boolean dispatchTouchEvent(MotionEvent event) {
         if ((deleteButtonIsViaiable == VISIBLE) && (deleteButton.getVisibility() == VISIBLE)) {
             buttonLayout.dispatchTouchEvent(event);
-        }else if((actionButtonIsViaiable == VISIBLE) && (actionButton.getVisibility() == VISIBLE)) {
+        } else if ((actionButtonIsViaiable == VISIBLE) && (actionButton.getVisibility() == VISIBLE)) {
             buttonLayout.dispatchTouchEvent(event);
         }
         super.dispatchTouchEvent(event);
