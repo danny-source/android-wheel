@@ -1025,7 +1025,7 @@ public class WheelView extends View {
                         // clicked above SelectBar
                         notifyClickListenersAboutAboveSelectBarClick(currentItem);
                     }
-                    Log.i("TAG", "items:" + items + " currentItem:" + currentItem);
+                    //Log.i("TAG", "items:" + items + " currentItem:" + currentItem);
 
                 }
                 break;
