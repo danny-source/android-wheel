@@ -16,7 +16,8 @@
 		android:id="@+id/TextView1"
 		android:gravity="center" />
 
-	<kankan.wheel.widget.WheelView android:id="@+id/swipe"
+	<tw.g35g.widget.WheelView
+		android:id="@+id/swipe"
          android:layout_height="250dp"
          android:layout_width="match_parent"
          android:layout_gravity="center_vertical" />

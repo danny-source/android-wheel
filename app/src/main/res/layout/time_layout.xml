@@ -15,10 +15,12 @@
 		android:paddingRight="12dp"
 		android:paddingTop="20dp">
 	  
-	  	<kankan.wheel.widget.WheelView android:id="@+id/hour"
+	  	<tw.g35g.widget.WheelView
+			android:id="@+id/hour"
 			android:layout_height="wrap_content"
 			android:layout_width="140dp"/>
-		<kankan.wheel.widget.WheelView android:id="@+id/mins"
+		<tw.g35g.widget.WheelView
+			android:id="@+id/mins"
 			android:layout_height="wrap_content"
 			android:layout_width="140dp"/>
 	</LinearLayout>

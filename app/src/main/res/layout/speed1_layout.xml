@@ -7,13 +7,15 @@
     android:orientation="vertical"
     android:background="@drawable/layout_bg">
     
-    <kankan.wheel.widget.WheelView android:id="@+id/speed"
+    <tw.g35g.widget.WheelView
+        android:id="@+id/speed"
         android:layout_marginTop="24dp"
         android:layout_gravity="center_horizontal"
         android:layout_height="wrap_content"
         android:layout_width="140dp"/>
         
-    <kankan.wheel.widget.WheelView android:id="@+id/units"
+    <tw.g35g.widget.WheelView
+        android:id="@+id/units"
         android:layout_marginTop="10dp"
         android:layout_gravity="center_horizontal"
         android:layout_height="wrap_content"

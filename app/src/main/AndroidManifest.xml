@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="kankan.wheel.demo" >
+    package="tw.g35g.demo" >
 
     <application
         android:icon="@mipmap/ic_launcher" android:label="@string/app_name">
 
-        <activity android:name="kankan.wheel.demo.WheelDemo">
+        <activity android:name="tw.g35g.demo.WheelDemo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="kankan.wheel.demo.TimeActivity" android:label="Time">
+        <activity android:name="tw.g35g.demo.TimeActivity" android:label="Time">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="kankan.wheel.WHEEL_SAMPLE"/>
             </intent-filter>
         </activity>
-        <activity android:name="kankan.wheel.demo.Time2Activity" android:label="Time 2">
+        <activity android:name="tw.g35g.demo.Time2Activity" android:label="Time 2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="kankan.wheel.WHEEL_SAMPLE"/>
             </intent-filter>
         </activity>
-        <activity android:name="kankan.wheel.demo.DateActivity" android:label="Date">
+        <activity android:name="tw.g35g.demo.DateActivity" android:label="Date">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="kankan.wheel.WHEEL_SAMPLE"/>
             </intent-filter>
         </activity>
-        <activity android:name="kankan.wheel.demo.PasswActivity" android:label="Password">
+        <activity android:name="tw.g35g.demo.PasswActivity" android:label="Password">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="kankan.wheel.WHEEL_SAMPLE"/>
             </intent-filter>
         </activity>
-        <activity android:name="kankan.wheel.demo.SlotMachineActivity" android:label="Slot Machine">
+        <activity android:name="tw.g35g.demo.SlotMachineActivity" android:label="Slot Machine">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="kankan.wheel.WHEEL_SAMPLE"/>
             </intent-filter>
         </activity>
-        <activity android:name="kankan.wheel.demo.CitiesActivity" android:label="Cities">
+        <activity android:name="tw.g35g.demo.CitiesActivity" android:label="Cities">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="kankan.wheel.WHEEL_SAMPLE"/>
             </intent-filter>
         </activity>
-        <activity android:name="kankan.wheel.demo.SwipeActivity" android:label="Swipe">
+        <activity android:name="tw.g35g.demo.SwipeActivity" android:label="Swipe">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="kankan.wheel.WHEEL_SAMPLE"/>
